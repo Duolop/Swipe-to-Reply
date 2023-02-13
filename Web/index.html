@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<title>Online HTML Editor</title>
+<head>
+    <style>
+        *{
+          font-family: sans-serif;
+        }
+        
+        body {
+          background: #ece5dd;
+        }
+        
+        .chat-container{
+          padding-bottom: 16px;
+        }
+        
+        .chat-bubble {
+          display: inline-block;
+          background: #ffffff;
+          padding: 10px;
+          padding-right: 40px;
+          margin: 0;
+          transition: transform 0.1s;
+          transition-timing-function: linear;
+          box-shadow: 0px 0px 3px gray;
+          border-radius: 8px 8px 8px 0px;
+          color: #555555;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+      <p class="chat-bubble">Swipe right >>></p>
+    </div>
+    
+    <script>
+        //Fraction of screenWidth chat bubble will have on full swipe
+        let fraction = 0.4
+        
+        function setBubblePosition(fingerDisplacement) {
+          let d = fingerDisplacement
+          let W = window.innerWidth
+          let f = fraction
+          
+          // x = min(d, f * √W * √d)
+          let x = Math.min(d, f * Math.sqrt(W) * Math.sqrt(d))
+          bubble.style.transform = `translateX(${x}px)`;
+        }
+        
+        // Setup
+        let element = document.getElementsByClassName("chat-container")[0]
+        let bubble = document.getElementsByClassName("chat-bubble")[0]
+        let sx = 0
+        let isDragging = false
+        
+        element.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          sx = e.clientX;
+          isDragging = true;
+        });
+        
+        element.addEventListener('mousemove', (e) => {
+          e.preventDefault();
+          if (isDragging) {
+            let d = e.clientX - sx;
+            if (d > 0) {
+              setBubblePosition(d)
+            }
+          }
+        });
+        
+        window.addEventListener('mouseup', (e) => {
+          e.preventDefault();
+          setBubblePosition(0)
+          isDragging = false;
+        });
+        
+        document.addEventListener('mouseleave', (e) => {
+          e.preventDefault();
+          setBubblePosition(0)
+          isDragging = false;
+        });
+        
+        function touchHandler(event)
+        {
+            var touches = event.changedTouches,
+                first = touches[0],
+                type = "";
+            switch(event.type)
+            {
+                case "touchstart": type = "mousedown"; break;
+                case "touchmove":  type = "mousemove"; break;        
+                case "touchend":   type = "mouseup";   break;
+                default:           return;
+            }
+        
+        
+            var simulatedEvent = document.createEvent("MouseEvent");
+            simulatedEvent.initMouseEvent(type, true, true, window, 1, 
+                                          first.screenX, first.screenY, 
+                                          first.clientX, first.clientY, false, 
+                                          false, false, false, 0/*left*/, null);
+        
+            first.target.dispatchEvent(simulatedEvent);
+            event.preventDefault();
+        }
+        
+        function init() 
+        {
+            document.addEventListener("touchstart", touchHandler, true);
+            document.addEventListener("touchmove", touchHandler, true);
+            document.addEventListener("touchend", touchHandler, true);
+            document.addEventListener("touchcancel", touchHandler, true);    
+        }
+        
+        init()
+    </script>
+</body>
+</html>
